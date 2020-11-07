@@ -1,1 +1,1 @@
-# weather-dashboard
+# product-sniper
