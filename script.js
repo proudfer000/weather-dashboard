@@ -1,5 +1,7 @@
 
 function buildQueryURL() {
+    console.log("inside build query function------------------------------------");
+    console.log(this);
     // queryURL is the url we'll use to query the API
     //var queryURL = "https://api.openweathermap.org/data/2.5/forecast?";
     var queryURL = "https://api.openweathermap.org/data/2.5/weather?";
@@ -25,7 +27,8 @@ function buildQueryURL() {
     */
    
   function updatePage(WeatherData) {
-  
+    console.log("inside updatepage function------------------------------------");
+    console.log(this);
     // Log the WeatherData to console, where it will show up as an object
     console.log(WeatherData);
     console.log("------------------------------------");
@@ -49,7 +52,8 @@ function buildQueryURL() {
       }
 
     if (WeatherData){
-       
+        console.log("before api call------------------------------------");
+        console.log(this);
         let queryURL = "https://api.openweathermap.org/data/2.5/onecall?lat="+latitude+
         "&lon="+longitude+"&exclude=minutely,hourly,alerts&appid=f00406ea1fec6bf20cddcb9568fdd2b1"
         
@@ -69,6 +73,8 @@ function buildQueryURL() {
             var iconAddress = "http://openweathermap.org/img/wn/";
             var iconSrc = iconAddress + wIconId;
            
+            console.log("inside api------------------------------------");
+    console.log(this);
             function UVbadge (){
                 if(UVindex<=2){
                     return "badge-success"
@@ -92,10 +98,11 @@ function buildQueryURL() {
             $("#uv-value").removeClass("badge-danger badge-warning badge-success");
             $("#uv-value").addClass(UVbadge ());
             
-            for (var i = 0; i < 5; i++) {
+            for (var i = 1; i < 6; i++) {
 
                 console.log(i);
-                
+                console.log("inside for loop------------------------------------");
+    console.log(this);
                 
                 
                 function dailyTimeConverter(){
@@ -154,7 +161,7 @@ function buildQueryURL() {
                 dailyCardCol.append(dailyForecastCard);
                 $("#dailyCardContainer").append(dailyCardCol);
 
-                if(i==4){
+                if(i==5){
                     $("#weather-card").css({ display: "initial" });
                     $("#weather-card").addClass("fade-in");
                 };
@@ -178,6 +185,9 @@ function buildQueryURL() {
   
   // .on("click") function associated with the Search Button
   $("#run-search").on("click", function(event) {
+    console.log("search btn fired------------------------------------");
+    console.log(this);
+
     // This line allows us to take advantage of the HTML "submit" property
     // This way we can hit enter on the keyboard and it registers the search
     // (in addition to clicks). Prevents the page from reloading on form submit.
