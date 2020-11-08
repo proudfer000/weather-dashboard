@@ -29,21 +29,14 @@ function buildQueryURL() {
     // Log the WeatherData to console, where it will show up as an object
     console.log(WeatherData);
     console.log("------------------------------------");
+
     var longitude = WeatherData.coord.lon;
-    console.log(longitude)
-    console.log("------------------------------------");
     var latitude = WeatherData.coord.lat;
-    console.log(latitude)
-    console.log("------------------------------------");
     var country = WeatherData.sys.country;
     var cityName = WeatherData.name + "," + country;
-    console.log(cityName)
-    console.log("------------------------------------");
     var date = timeConverter();
-    console.log(date)
-    console.log("------------------------------------");
     
-    function timeConverter(){
+    function timeConverter(test){
         var UNIX_timestamp = WeatherData.dt;
         var timeZone = WeatherData.timezone;
         var a = new Date((UNIX_timestamp + timeZone) * 1000);
@@ -68,28 +61,14 @@ function buildQueryURL() {
             console.log("------------------------------------");
 
             var temperature = (((WeatherDaily.current.temp - 273.15) * 1.8) + 32).toFixed(1)+ " " + "°F" ;
-            console.log(temperature)
-            console.log("------------------------------------");
-            
             var humidity = WeatherDaily.current.humidity  + "%";
-            console.log(humidity)
-            console.log("------------------------------------");
-
             var windSpeed = (WeatherDaily.current.wind_speed *  2.237).toFixed(1) + " " + "MPH";
-            console.log(windSpeed)
-            console.log("------------------------------------");
-
             var UVindex = WeatherDaily.current.uvi;
-            console.log(UVindex)
-            console.log("------------------------------------");
-
             var weatherDescription = WeatherDaily.current.weather[0].description;
             var wIconId = WeatherDaily.current.weather[0].icon + "@2x.png";
             var iconAddress = "http://openweathermap.org/img/wn/";
             var iconSrc = iconAddress + wIconId;
-            console.log(iconSrc)
-            console.log("------------------------------------");
-            
+           
             function UVbadge (){
                 if(UVindex<=2){
                     return "badge-success"
@@ -114,66 +93,65 @@ function buildQueryURL() {
             $("#uv-value").addClass(UVbadge ());
             $("#weather-card").css({ display: "initial" });
             $("#weather-card").addClass("fade-in");
-          
-            for (var i = 0; i < numArticles; i++) {
-                // Get specific article info for current index
-                var article = NYTData.response.docs[i];
+           
+            for (var i = 0; i < 5; i++) {
+
+                console.log(i);
+                
+                let wIconId = WeatherDaily.daily[i].weather[0].icon + ".png";
+                
+                function dailyTimeConverter(){
+                    let UNIX_timestamp = WeatherDaily.daily[i].dt;
+                    let timeZone = WeatherData.timezone;
+                    let a = new Date((UNIX_timestamp + timeZone) * 1000);
+                    let months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                    let year = a.getFullYear();
+                    let month = months[a.getMonth()];
+                    let date = a.getDate();
+                    let time = month + ' ' + date+ ' ' + year ;
+                    return time;  
+                  }
+                let dailyDate = dailyTimeConverter();
+                let dailyIconSrc = iconAddress + wIconId;
+                let dailyTemp = (((WeatherDaily.daily[i].temp.day - 273.15) * 1.8) + 32).toFixed(1)+ " " + "°F" ;
+                let dailyHumidity = WeatherDaily.daily[i].humidity + "%";
+
+                let dailyForecastCard = $("<div>");
+                dailyForecastCard.addClass("card");
+
+                let cardBody = $("<div>");
+                cardBody.addClass("card-body");
+                
+                let cardDate = $("<h5>");
+                cardDate.addClass("card-subtitle mb-2");
+                cardDate.text(dailyDate);
+                cardBody.append(cardDate);
+
+                let cardIcon = $("<h5>");
+                cardIcon.addClass("card-subtitle mb-2 text-muted");
+                let cardIconImg = $("<img>");
+                cardIconImg.attr({
+                    src: dailyIconSrc,
+                    alt: "Weather icon"
+                });
+                cardIcon.append(cardIconImg);
+                cardBody.append(cardIcon);
+
+                let cardTemp = $("<h5>");
+                cardTemp.addClass("card-subtitle mb-2 text-muted");
+                cardTemp.text("Temp: " + dailyTemp);
+                cardBody.append(cardTemp);
+
+                let cardHumidity = $("<h5>");
+                cardHumidity.addClass("card-subtitle mb-2 text-muted");
+                cardHumidity.text("Humidity: " + dailyHumidity);
+                cardBody.append(cardHumidity);
+
+                dailyForecastCard.append(cardBody);
+                $("#dailyCardContainer").append(dailyForecastCard);
+
             
-                // Increase the articleCount (track article # - starting at 1)
-                var articleCount = i + 1;
-            
-                // Create the  list group to contain the articles and add the article content for each
-                var $articleList = $("<ul>");
-                $articleList.addClass("list-group");
-            
-                // Add the newly created element to the DOM
-                $("#article-section").append($articleList);
-            
-                // If the article has a headline, log and append to $articleList
-                var headline = article.headline;
-                var $articleListItem = $("<li class='list-group-item articleHeadline'>");
-            
-                if (headline && headline.main) {
-                  console.log(headline.main);
-                  $articleListItem.append(
-                    "<span class='label label-primary'>" +
-                      articleCount +
-                      "</span>" +
-                      "<strong> " +
-                      headline.main +
-                      "</strong>"
-                  );
-                }
-            
-                // If the article has a byline, log and append to $articleList
-                var byline = article.byline;
-            
-                if (byline && byline.original) {
-                  console.log(byline.original);
-                  $articleListItem.append("<h5>" + byline.original + "</h5>");
-                }
-            
-                // Log section, and append to document if exists
-                var section = article.section_name;
-                console.log(article.section_name);
-                if (section) {
-                  $articleListItem.append("<h5>Section: " + section + "</h5>");
-                }
-            
-                // Log published date, and append to document if exists
-                var pubDate = article.pub_date;
-                console.log(article.pub_date);
-                if (pubDate) {
-                  $articleListItem.append("<h5>" + article.pub_date + "</h5>");
-                }
-            
-                // Append and log url
-                $articleListItem.append("<a href='" + article.web_url + "'>" + article.web_url + "</a>");
-                console.log(article.web_url);
-            
-                // Append the article
-                $articleList.append($articleListItem);
-              }
+              };
         });
           
         
