@@ -91,14 +91,12 @@ function buildQueryURL() {
             $("#uv-value").text(UVindex);
             $("#uv-value").removeClass("badge-danger badge-warning badge-success");
             $("#uv-value").addClass(UVbadge ());
-            $("#weather-card").css({ display: "initial" });
-            $("#weather-card").addClass("fade-in");
-           
+            
             for (var i = 0; i < 5; i++) {
 
                 console.log(i);
                 
-                let wIconId = WeatherDaily.daily[i].weather[0].icon + ".png";
+                
                 
                 function dailyTimeConverter(){
                     let UNIX_timestamp = WeatherDaily.daily[i].dt;
@@ -108,13 +106,18 @@ function buildQueryURL() {
                     let year = a.getFullYear();
                     let month = months[a.getMonth()];
                     let date = a.getDate();
-                    let time = month + ' ' + date+ ' ' + year ;
+                    let time = month + ' ' + date;
                     return time;  
                   }
+                let wIconId = WeatherDaily.daily[i].weather[0].icon + ".png";
                 let dailyDate = dailyTimeConverter();
                 let dailyIconSrc = iconAddress + wIconId;
                 let dailyTemp = (((WeatherDaily.daily[i].temp.day - 273.15) * 1.8) + 32).toFixed(1)+ " " + "°F" ;
                 let dailyHumidity = WeatherDaily.daily[i].humidity + "%";
+
+                let dailyCardCol = $("<div>");
+                dailyCardCol.addClass("col")
+                dailyCardCol.attr("style", "width: 8rem");
 
                 let dailyForecastCard = $("<div>");
                 dailyForecastCard.addClass("card");
@@ -122,12 +125,12 @@ function buildQueryURL() {
                 let cardBody = $("<div>");
                 cardBody.addClass("card-body");
                 
-                let cardDate = $("<h5>");
+                let cardDate = $("<h6>");
                 cardDate.addClass("card-subtitle mb-2");
                 cardDate.text(dailyDate);
                 cardBody.append(cardDate);
 
-                let cardIcon = $("<h5>");
+                let cardIcon = $("<h6>");
                 cardIcon.addClass("card-subtitle mb-2 text-muted");
                 let cardIconImg = $("<img>");
                 cardIconImg.attr({
@@ -137,19 +140,24 @@ function buildQueryURL() {
                 cardIcon.append(cardIconImg);
                 cardBody.append(cardIcon);
 
-                let cardTemp = $("<h5>");
+                let cardTemp = $("<h6>");
                 cardTemp.addClass("card-subtitle mb-2 text-muted");
                 cardTemp.text("Temp: " + dailyTemp);
                 cardBody.append(cardTemp);
 
-                let cardHumidity = $("<h5>");
+                let cardHumidity = $("<h6>");
                 cardHumidity.addClass("card-subtitle mb-2 text-muted");
                 cardHumidity.text("Humidity: " + dailyHumidity);
                 cardBody.append(cardHumidity);
 
                 dailyForecastCard.append(cardBody);
-                $("#dailyCardContainer").append(dailyForecastCard);
+                dailyCardCol.append(dailyForecastCard);
+                $("#dailyCardContainer").append(dailyCardCol);
 
+                if(i==4){
+                    $("#weather-card").css({ display: "initial" });
+                    $("#weather-card").addClass("fade-in");
+                };
             
               };
         });
@@ -162,7 +170,7 @@ function buildQueryURL() {
  
   // Function to empty out the articles
   function clear() {
-    $("#article-section").empty();
+    $("#dailyCardContainer").empty();
   }
   
   // CLICK HANDLERS
@@ -176,7 +184,7 @@ function buildQueryURL() {
     event.preventDefault();
     $("#weather-card").css({ display: "none" });
     // Empty the region associated with the articles
-    //clear();
+    clear();
   
     // Build the query URL for the ajax request to the NYT API
     var queryURL = buildQueryURL();
