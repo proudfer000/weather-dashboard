@@ -1,17 +1,9 @@
+$( document ).ready(function() {
+    console.log( "ready!" );
 
 var newSearch = true;
 var searchHistoryValue;
-
-console.log(newSearch);
-console.log("console log newSearch-------------------");
-
 var searchHistoryArray = [];
-
-console.log(searchHistoryArray[0]);
-console.log("console log Search array -------------------");
-console.log(searchHistoryArray.length);
-console.log("console log array length-------------------");
-
 
 function pushInArray (){
     
@@ -70,9 +62,7 @@ function createSearchHistory (){
         btnList.prepend(searchHisBtn);
         
         if(i + 1 == searchHistoryArray.length){
-            
-            console.log("i inside if statement------");
-            console.log(i);
+        
             $("#btnList").append(btnList);
         };
     };
@@ -80,12 +70,9 @@ function createSearchHistory (){
 
 function search(){
 
-    console.log("btn fired------------------------------------");
-    //console.log(this);
-    
     $("#weather-card").css({ display: "none" });
-    // Empty the region associated with the articles
-    clear();
+
+    clearCardContainer();
 
     // Build the query URL for the ajax request to the NYT API
     var queryURL = buildQueryURL();
@@ -95,11 +82,34 @@ function search(){
     $.ajax({
     url: queryURL,
     method: "GET"
-    }).then(updatePage);
+    }).fail(notACity).then(updatePage);
+
 };
 
-getSavedArray();
+function notACity (){
+    
+    $("#modal-body-text").text("Thats not a City, Please write the name of any City.");
+    $('#myModal').modal("show");
+};
 
+function noText (){
+    
+    $("#modal-body-text").text("Please write the name of any City.");
+    $('#myModal').modal("show");
+};
+
+function newSearchFalse (){
+    newSearch = false;
+    
+};
+
+function newSearchTrue (){
+    newSearch = true;
+};
+
+function clearCardContainer() {
+    $("#dailyCardContainer").empty();
+};
 
 function buildQueryURL() {
     
@@ -113,9 +123,7 @@ function buildQueryURL() {
   
     // Grab text the user typed into the search input, add to the queryParams object
     queryParams.q;
-  
-    console.log(queryParams.q);
-    console.log("queryParams.q");
+
     if (newSearch){
 
         queryParams.q = $("#search-term").val().trim().toLowerCase();
@@ -126,14 +134,10 @@ function buildQueryURL() {
     //console.log("---------------\nURL: " + queryURL + "\n---------------");
     //console.log(queryURL + $.param(queryParams));
     return queryURL + $.param(queryParams);
-  }
+
+};
   
-  /**
-   * takes API data (JSON/object) and turns it into elements on the page
-   * @param {object} WeatherData - object containing NYT API data
-    */
-   
-  function updatePage(WeatherData) {
+function updatePage(WeatherData) {
     
     // Log the WeatherData to console, where it will show up as an object
     //console.log(WeatherData);
@@ -206,9 +210,6 @@ function buildQueryURL() {
             $("#uv-value").addClass(UVbadge ());
             
             for (var i = 1; i < 6; i++) {
-
-                console.log("------------------------------------");
-                console.log(i);
                 
                 function dailyTimeConverter(){
                     let UNIX_timestamp = WeatherDaily.daily[i].dt;
@@ -277,13 +278,10 @@ function buildQueryURL() {
 
     }
 
-  }
- 
-  // Function to empty out the articles
-  function clear() {
-    $("#dailyCardContainer").empty();
-  }
-  
+};
+
+getSavedArray();
+
   // CLICK HANDLERS
   // ==========================================================
   
@@ -291,34 +289,28 @@ function buildQueryURL() {
   $("#run-search").on("click", function(event) {
 
     event.preventDefault();
-    newSearch = true;
-
+    newSearchTrue ();
     let searchInput = $("#search-term").val().trim().toLowerCase();
-   
-    if (!searchInput==""){
-        
-        search();
-        
-        
-      
-    } else {
 
-        
+    if (!searchInput==""){
+        search();
+    } 
+    else {
+        noText ();
     };
 
   });
   
-  $(".searchHistory").on("click", function(){
-    test();
-    console.log("side bar btn")
-    searchHistoryValue = this.dataset.city;
-    function test(){
-        newSearch = false;
-    };
-    console.log(searchHistoryValue);
+  $(".searchHistory").on("click", function(event){
 
-      search()
+    event.preventDefault();
+    newSearchFalse();
+    searchHistoryValue = this.dataset.city;
+    $(".searchHistory").removeClass("active");
+    $(this).addClass("active");
+
+    search()
 
   });
  
-  
+});
