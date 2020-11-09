@@ -14,7 +14,7 @@ console.log("console log array length-------------------");
 
 
 function pushInArray (){
-
+    
     let searchInput = $("#search-term").val().trim().toLowerCase();
 
     if(jQuery.inArray(searchInput, searchHistoryArray) == -1){
@@ -31,6 +31,8 @@ function pushInArray (){
                 createSearchHistory ()
         };
     };
+
+    
 
 };
 
@@ -157,6 +159,10 @@ function buildQueryURL() {
 
     if (WeatherData){
         
+        if (newSearch){
+            console.log("test push in array")
+            pushInArray();
+        };
         let queryURL = "https://api.openweathermap.org/data/2.5/onecall?lat="+latitude+
         "&lon="+longitude+"&exclude=minutely,hourly,alerts&appid=f00406ea1fec6bf20cddcb9568fdd2b1"
         
@@ -241,8 +247,7 @@ function buildQueryURL() {
                 let cardIconImg = $("<img>");
                 cardIconImg.attr({
                     src: dailyIconSrc,
-                    alt: "Weather icon"
-                });
+                    alt: "Weather icon"});
                 cardIcon.append(cardIconImg);
                 cardBody.append(cardIcon);
 
@@ -293,7 +298,7 @@ function buildQueryURL() {
     if (!searchInput==""){
         
         search();
-        pushInArray();
+        
         
       
     } else {
@@ -304,10 +309,13 @@ function buildQueryURL() {
   });
   
   $(".searchHistory").on("click", function(){
-
-      searchHistoryValue = this.dataset.city;
-      newSearch = false;
-      console.log(searchHistoryValue);
+    test();
+    console.log("side bar btn")
+    searchHistoryValue = this.dataset.city;
+    function test(){
+        newSearch = false;
+    };
+    console.log(searchHistoryValue);
 
       search()
 
