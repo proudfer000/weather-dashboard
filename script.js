@@ -1,7 +1,106 @@
 
+var newSearch = true;
+var searchHistoryValue;
+
+console.log(newSearch);
+console.log("console log newSearch-------------------");
+
+var searchHistoryArray = [];
+
+console.log(searchHistoryArray[0]);
+console.log("console log Search array -------------------");
+console.log(searchHistoryArray.length);
+console.log("console log array length-------------------");
+
+
+function pushInArray (){
+
+    let searchInput = $("#search-term").val().trim().toLowerCase();
+
+    if(jQuery.inArray(searchInput, searchHistoryArray) == -1){
+        
+        if (searchHistoryArray.length < 10){
+            const pushNew = searchHistoryArray.push(searchInput);
+            SaveToLocal ();
+            createSearchHistory ()
+
+        } else {
+                let first = searchHistoryArray.shift();
+                const pushNew = searchHistoryArray.push(searchInput);
+                SaveToLocal ();
+                createSearchHistory ()
+        };
+    };
+
+};
+
+function SaveToLocal (){
+
+    localStorage.setItem("savedSearch", JSON.stringify(searchHistoryArray)
+    );
+};
+
+function getSavedArray(){
+
+    let savedArray = JSON.parse(localStorage.getItem("savedSearch"));
+
+    if(savedArray){
+        searchHistoryArray = savedArray;
+        createSearchHistory ();
+    };
+
+};
+
+function createSearchHistory (){
+
+    $("#btnList").empty();
+
+    let btnList = $("<div>");
+    btnList.addClass("list-group");
+
+    for (var i = 0; i < searchHistoryArray.length; i++){
+
+        let searchHisBtn = $("<button>");
+        searchHisBtn.addClass("list-group-item list-group-item-action searchHistory");
+        searchHisBtn.attr("data-city", searchHistoryArray[i]);
+        searchHisBtn.attr("type", "button");
+        searchHisBtn.text(searchHistoryArray[i]);
+        btnList.prepend(searchHisBtn);
+        
+        if(i + 1 == searchHistoryArray.length){
+            
+            console.log("i inside if statement------");
+            console.log(i);
+            $("#btnList").append(btnList);
+        };
+    };
+};
+
+function search(){
+
+    console.log("btn fired------------------------------------");
+    //console.log(this);
+    
+    $("#weather-card").css({ display: "none" });
+    // Empty the region associated with the articles
+    clear();
+
+    // Build the query URL for the ajax request to the NYT API
+    var queryURL = buildQueryURL();
+
+    // Make the AJAX request to the API - GETs the JSON data at the queryURL.
+    // The data then gets passed as an argument to the updatePage function
+    $.ajax({
+    url: queryURL,
+    method: "GET"
+    }).then(updatePage);
+};
+
+getSavedArray();
+
+
 function buildQueryURL() {
-    console.log("inside build query function------------------------------------");
-    console.log(this);
+    
     // queryURL is the url we'll use to query the API
     //var queryURL = "https://api.openweathermap.org/data/2.5/forecast?";
     var queryURL = "https://api.openweathermap.org/data/2.5/weather?";
@@ -11,13 +110,19 @@ function buildQueryURL() {
     var queryParams = { appid: "f00406ea1fec6bf20cddcb9568fdd2b1" };
   
     // Grab text the user typed into the search input, add to the queryParams object
-    queryParams.q = $("#search-term")
-      .val()
-      .trim();
+    queryParams.q;
   
+    console.log(queryParams.q);
+    console.log("queryParams.q");
+    if (newSearch){
+
+        queryParams.q = $("#search-term").val().trim().toLowerCase();
+    } else{
+        queryParams.q = searchHistoryValue;
+    };
     // Logging the URL so we have access to it for troubleshooting
-    console.log("---------------\nURL: " + queryURL + "\n---------------");
-    console.log(queryURL + $.param(queryParams));
+    //console.log("---------------\nURL: " + queryURL + "\n---------------");
+    //console.log(queryURL + $.param(queryParams));
     return queryURL + $.param(queryParams);
   }
   
@@ -27,11 +132,10 @@ function buildQueryURL() {
     */
    
   function updatePage(WeatherData) {
-    console.log("inside updatepage function------------------------------------");
-    console.log(this);
+    
     // Log the WeatherData to console, where it will show up as an object
-    console.log(WeatherData);
-    console.log("------------------------------------");
+    //console.log(WeatherData);
+    //console.log("------------------------------------");
 
     var longitude = WeatherData.coord.lon;
     var latitude = WeatherData.coord.lat;
@@ -52,8 +156,7 @@ function buildQueryURL() {
       }
 
     if (WeatherData){
-        console.log("before api call------------------------------------");
-        console.log(this);
+        
         let queryURL = "https://api.openweathermap.org/data/2.5/onecall?lat="+latitude+
         "&lon="+longitude+"&exclude=minutely,hourly,alerts&appid=f00406ea1fec6bf20cddcb9568fdd2b1"
         
@@ -61,8 +164,8 @@ function buildQueryURL() {
             url: queryURL,
             method: "GET"
           }).then(function(WeatherDaily){
-            console.log(WeatherDaily)
-            console.log("------------------------------------");
+            //console.log(WeatherDaily)
+            //console.log("------------------------------------");
 
             var temperature = (((WeatherDaily.current.temp - 273.15) * 1.8) + 32).toFixed(1)+ " " + "°F" ;
             var humidity = WeatherDaily.current.humidity  + "%";
@@ -73,8 +176,6 @@ function buildQueryURL() {
             var iconAddress = "http://openweathermap.org/img/wn/";
             var iconSrc = iconAddress + wIconId;
            
-            console.log("inside api------------------------------------");
-    console.log(this);
             function UVbadge (){
                 if(UVindex<=2){
                     return "badge-success"
@@ -100,10 +201,8 @@ function buildQueryURL() {
             
             for (var i = 1; i < 6; i++) {
 
+                console.log("------------------------------------");
                 console.log(i);
-                console.log("inside for loop------------------------------------");
-    console.log(this);
-                
                 
                 function dailyTimeConverter(){
                     let UNIX_timestamp = WeatherDaily.daily[i].dt;
@@ -185,28 +284,33 @@ function buildQueryURL() {
   
   // .on("click") function associated with the Search Button
   $("#run-search").on("click", function(event) {
-    console.log("search btn fired------------------------------------");
-    console.log(this);
 
-    // This line allows us to take advantage of the HTML "submit" property
-    // This way we can hit enter on the keyboard and it registers the search
-    // (in addition to clicks). Prevents the page from reloading on form submit.
     event.preventDefault();
-    $("#weather-card").css({ display: "none" });
-    // Empty the region associated with the articles
-    clear();
-  
-    // Build the query URL for the ajax request to the NYT API
-    var queryURL = buildQueryURL();
-  
-    // Make the AJAX request to the API - GETs the JSON data at the queryURL.
-    // The data then gets passed as an argument to the updatePage function
-    $.ajax({
-      url: queryURL,
-      method: "GET"
-    }).then(updatePage);
+    newSearch = true;
+
+    let searchInput = $("#search-term").val().trim().toLowerCase();
+   
+    if (!searchInput==""){
+        
+        search();
+        pushInArray();
+        
+      
+    } else {
+
+        
+    };
+
   });
   
+  $(".searchHistory").on("click", function(){
 
+      searchHistoryValue = this.dataset.city;
+      newSearch = false;
+      console.log(searchHistoryValue);
+
+      search()
+
+  });
  
   
