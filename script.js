@@ -267,7 +267,7 @@ function updatePage(WeatherData) {
                 $("#dailyCardContainer").append(dailyCardCol);
 
                 if(i==5){
-                    $("#weather-card").css({ display: "initial" });
+                    $("#weather-card").css({ display: "block" });
                     $("#weather-card").addClass("fade-in");
                 };
             
@@ -305,10 +305,10 @@ getSavedArray();
 
     console.log("newbton fired-----------")
     event.preventDefault();
-    newSearchFalse();
     searchHistoryValue = this.dataset.city;
     $(".searchHistory").removeClass("active");
     $(this).addClass("active");
+    newSearchFalse();
 
     search()
 
