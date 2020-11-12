@@ -301,8 +301,9 @@ getSavedArray();
 
   });
   
-  $(".searchHistory").on("click", function(event){
+  $("#btnList").on("click","button", function(event){
 
+    console.log("newbton fired-----------")
     event.preventDefault();
     newSearchFalse();
     searchHistoryValue = this.dataset.city;
